@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>OMDb Movie Search</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lottie-web@5.7.4/build/player/lottie.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<div id="loader-overlay">
+    <div id="loader-animation" style="width: 150px; height: 150px;"></div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand bubble-text" href="/"><i class="fas fa-clapperboard"></i> Film  </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav mr-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                </li>
+            </ul>
+
+            </div>
+
+            <form method="post" action="/search" class="form-inline my-2 my-lg-0 position-relative">
+                <input type="text" id="searchBox" name="title" class="form-control mr-2" placeholder="Enter movie title" autocomplete="off" required>
+                <div id="suggestions" class="suggestion-box"></div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div th:if="${movie == null}" class="container text-center mt-5 pt-5">
+    <div id="lottie-container"></div>
+    <h1><i class="fas fa-film"></i> Find Your Favorite Movie</h1>
+</div>
+
+<div class="container mt-4">
+    <div th:if="${movie}" class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card movie-card shadow">
+                <img th:src="${movie.poster}" class="card-img-top poster-img" alt="Poster">
+                <div class="card-body">
+                    <h4 class="card-title" th:text="${movie.title}"></h4>
+                    <p class="card-text">
+                        <strong>Year:</strong> <span th:text="${movie.year}"></span><br>
+                        <strong>Released:</strong> <span th:text="${movie.released}"></span><br>
+                        <strong>Runtime:</strong> <span th:text="${movie.runtime}"></span><br>
+                        <strong>Genre:</strong> <span th:text="${movie.genre}"></span><br>
+                        <strong>Director:</strong> <span th:text="${movie.director}"></span><br>
+                        <strong>Actors:</strong> <span th:text="${movie.actors}"></span><br>
+                        <strong>Language:</strong> <span th:text="${movie.language}"></span><br>
+                        <strong>IMDb Rating:</strong> <span th:text="${movie.imdbRating}"></span><br><br>
+                        <strong>Plot:</strong><br>
+                        <span th:text="${movie.plot}"></span>
+                    </p>
+                    <a th:href="'https://www.youtube.com/results?search_query=' + ${movie.title} + ' trailer'" 
+                       class="btn btn-danger mt-3" target="_blank">
+                       <i class="fab fa-youtube"></i> Watch Trailer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <hr class="section-divider">
+</div>
+
+<div class="container mt-5" id="top-movies">
+    <h3><i class="fas fa-star text-warning"></i> Top 20 Recommended Movies</h3>
+    <div class="row">
+        <div class="col-md-3 mb-4" th:each="m : ${topMovies}">
+            <form method="post" action="/search">
+                <input type="hidden" name="title" th:value="${m.title}" />
+                <button type="submit" class="btn p-0 border-0 w-100 text-left">
+                    <div class="card h-100 shadow-sm">
+                        <img th:src="${m.poster}" class="card-img-top poster-img" alt="poster">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${m.title}">Movie Title</h5>
+                            <p class="card-text">
+                                <strong>Year:</strong> <span th:text="${m.year}"></span><br>
+                                <strong>IMDb:</strong> <span th:text="${m.imdbRating}"></span>
+                            </p>
+                            <div class="btn btn-sm btn-danger">
+                                <i class="fab fa-youtube"></i> Trailer
+                            </div>
+                        </div>
+                    </div>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-4 mt-5">
+    <div class="container">
+        <p class="mb-2">
+            &copy; 2025 Movie | Reiner | Sistem Informasi    
+        </p>
+        <div>
+            <a href="https://www.tiktok.com/rioakarain" target="_blank" class="text-white mx-2">
+                <i class="fab fa-tiktok fa-lg"></i>
+            </a>
+            <a href="https://www.instagram.com/riorainnn" target="_blank" class="text-white mx-2">
+                <i class="fab fa-instagram fa-lg"></i>
+            </a>
+            <a href="https://www.facebook.com/REINER.LMRBRU" target="_blank" class="text-white mx-2">
+                <i class="fab fa-facebook fa-lg"></i>
+            </a>
+        </div>
+    </div>
+</footer>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/autosuggest.js}"></script>
+<script>
+    // Dark Mode Logic
+    $(document).ready(function () {
+        if (localStorage.getItem('theme') === 'dark') {
+            $('body').addClass('dark-mode');
+            $('#darkModeToggle').prop('checked', true);
+        }
+
+        $('#darkModeToggle').on('change', function () {
+            $('body').toggleClass('dark-mode');
+            localStorage.setItem('theme', $('body').hasClass('dark-mode') ? 'dark' : 'light');
+        });
+    });
+</script>
+</body>
+</html>
